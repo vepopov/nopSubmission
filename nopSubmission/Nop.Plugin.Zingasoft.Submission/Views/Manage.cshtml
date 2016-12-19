@@ -1,0 +1,307 @@
+﻿@using Nop.Core.Infrastructure
+@using Nop.Plugin.Zingasoft.Submission.Data;
+@using Nop.Plugin.Zingasoft.Submission.Domain;
+@using Nop.Web.Framework;
+
+@model SubmissionRecordSearchModel
+@{
+    Layout = "_AdminLayout.cshtml";
+
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+    int maxFileSize = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().SubmissionFileMaxSizeInMB;
+    string allowedFileTypes = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().SubmissionAllowedFiletypes;
+
+    string enquiryEmail = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().EnquiryEmail;
+    string jobApplicationEmail = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().JobApplicationEmail;
+    string partnerOfferEmail = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().PartnerOfferEmail;
+    string vendorOfferEmail = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().VendorOfferEmail;
+    string otherEmail = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().OtherEmail;
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+            @T("Plugins.Zingasoft.Submission.Admin.SubmissionHeader")
+        </div>
+    </div>
+    <h2>@T("Plugins.Zingasoft.Submission.Admin.SubmissionSettings")</h2>
+    <table width="100%">
+        <tr>
+            <td class="adminTitle">
+                <label for="maxFileSize">@T("Plugins.Zingasoft.Submission.Admin.MaxFileSize")</label>
+            </td>
+            <td class="adminData">
+                <input class="t-numerictextbox t-input" type="number" id="maxFileSize" name="maxFileSize" value="@maxFileSize" />
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                <label for="allowedFileTypes">@T("Plugins.Zingasoft.Submission.Admin.AllowedFiletypes")</label>
+            </td>
+            <td class="adminData">
+                <input class="text-box single-line" type="text" id="allowedFileTypes" name="allowedFileTypes" value="@allowedFileTypes" />
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                <label for="enquiryEmail">@T("Plugins.Zingasoft.Submission.Admin.EnquiryEmailSubscriber")</label>
+            </td>
+            <td class="adminData">
+                <input class="text-box single-line" type="text" id="enquiryEmail" name="enquiryEmail" value="@enquiryEmail" />
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                <label for="jobApplicationEmail">@T("Plugins.Zingasoft.Submission.Admin.JobApplicationEmailSubscriber")</label>
+            </td>
+            <td class="adminData">
+                <input class="text-box single-line" type="text" id="jobApplicationEmail" name="jobApplicationEmail" value="@jobApplicationEmail" />
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                <label for="partnerOfferEmail">@T("Plugins.Zingasoft.Submission.Admin.ParnterOfferEmailSubscriber")</label>
+            </td>
+            <td class="adminData">
+                <input class="text-box single-line" type="text" id="partnerOfferEmail" name="partnerOfferEmail" value="@partnerOfferEmail" />
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                <label for="vendorOfferEmail">@T("Plugins.Zingasoft.Submission.Admin.VendorOfferEmailSubscriber")</label>
+            </td>
+            <td class="adminData">
+                <input class="text-box single-line" type="text" id="vendorOfferEmail" name="vendorOfferEmail" value="@vendorOfferEmail" />
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                <label for="otherEmail">@T("Plugins.Zingasoft.Submission.Admin.OtherEmailSubscriber")</label>
+            </td>
+            <td class="adminData">
+                <input class="text-box single-line" type="text" id="otherEmail" name="otherEmail" value="@otherEmail" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" id="saveSubmissionSettings" class="k-button" value="@T("Plugins.Zingasoft.Submission.Admin.Save")" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <p id="settingsChangeStatus"></p>
+            </td>
+        </tr>
+    </table>
+
+    <br />
+    <h2>@T("Plugins.Zingasoft.Submission.Admin.SubmissionFilter")</h2>
+    <table width="100%">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SearchEmail):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.SearchEmail)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SearchName):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.SearchName)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SearchSubmissionTypeEnumCode):
+            </td>
+            <td class="adminData">
+                @Html.DropDownList("SearchSubmissionTypeEnumCode", Model.AvailableSubmissionTypes)
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="button" id="search-submissions" class="k-button" value="@T("Admin.Common.Search")" />
+            </td>
+        </tr>
+    </table>
+    <br />
+    <table class="adminContent">
+        <tr>
+            <td>
+                <div id="submissions-grid"></div>
+
+                <script>
+                    $(document).ready(function() {
+                        $("#submissions-grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("SubmissionList", "Submission"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: additionalData
+                                    },
+                                    update: {
+                                        url: "@Html.Raw(Url.Action("SubmissionUpdate", "Submission"))",
+                                        type: "POST",
+                                        dataType: "json"
+                                    },
+                                    destroy: {
+                                        url: "@Html.Raw(Url.Action("SubmissionDelete", "Submission"))",
+                                        type: "POST",
+                                        dataType: "json"
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors",
+                                    model: {
+                                        id: "SubmissionRecordId",
+                                        fields: {
+                                            Email: { editable: true, type: "string" },
+                                            FullName: { editable: true, type: "string" },
+                                            Subject: { editable: true, type: "string" },
+                                            Phone: { editable: true, type: "string" },
+                                            Enquiry: { editable: true, type: "string" },
+                                            RecordType: { editable: false, type: "string" },
+                                            DownloadLink: { editable: false, type: "string"}
+                                        }
+                                    }
+                                },
+                                requestEnd: function(e) {
+                                    if (e.type == "update") {
+                                        this.read();
+                                    }
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                pageSize: @(defaultGridPageSize),
+                                serverPaging: true,
+                                serverFiltering: true,
+                                serverSorting: true
+                            },
+                            pageable: {
+                                refresh: true,
+                                pageSizes: [@(gridPageSizes)]
+                            },
+                            editable: {
+                                confirmation: false,
+                                mode: "inline"
+                            },
+                            scrollable: false,
+                            columns: [
+                                {
+                                    field: "Email",
+                                    title: "Email",
+                                    width: 100
+                                },{
+                                    field: "FullName",
+                                    title: "@T("Plugins.Zingasoft.Submission.Admin.FullName")",
+                                    width: 100
+                                },{
+                                    field: "Subject",
+                                    title: "@T("Plugins.Zingasoft.Submission.Admin.Subject")",
+                                    width: 100
+                                },{
+                                    field: "Phone",
+                                    title: "@T("Plugins.Zingasoft.Submission.Admin.Phone")",
+                                    width: 100
+                                },{
+                                    field: "Enquiry",
+                                    title: "@T("Plugins.Zingasoft.Submission.Admin.Enquiry")",
+                                    width: 300
+                                },{
+                                    field: "RecordType",
+                                    title: "@T("Plugins.Zingasoft.Submission.Admin.Type")",
+                                    width: 100,
+                                    template: '#if (RecordType == 0) {# <label>@T("Plugins.Zingasoft.Submission.Admin.Enquiry")<label> #} else if (RecordType == 1) {# <label>@T("Plugins.Zingasoft.Submission.Admin.JobApplication")<label> #} else if (RecordType == 2) {# <label>@T("Plugins.Zingasoft.Submission.Admin.PartnerOffer")<label> #} else if (RecordType == 3) {# <label>@T("Plugins.Zingasoft.Submission.Admin.VendorOffer")<label> #} else if (RecordType == 4) {# <label>@T("Plugins.Zingasoft.Submission.Admin.Other")<label> #}#'
+                                },{
+                                    field: "DownloadLink",
+                                    title: "@T("Plugins.Zingasoft.Submission.Admin.DownloadLink")",
+                                    width: 100,
+                                    template: "#if (DownloadLink != null) {# <a href=\"#=DownloadLink#\">@T("Plugins.Zingasoft.Submission.Admin.Attachment")</a> #}#"
+                                }, {
+                                    command: [
+                                        {
+                                            name: "edit",
+                                            text: {
+                                                edit: "@T("Admin.Common.Edit")",
+                                                update: "@T("Admin.Common.Update")",
+                                                cancel: "@T("Admin.Common.Cancel")"
+                                            }
+                                        }, {
+                                            name: "destroy",
+                                            text: "@T("Admin.Common.Delete")"
+                                        }
+                                    ],
+                                    width: 200
+                                }
+                            ]
+                        });
+
+                        $('#search-submissions').click(function () {
+                            //search
+                            var grid = $('#submissions-grid').data('kendoGrid');
+                            grid.dataSource.page(1); //new search. Set page size to 1
+                            //grid.dataSource.read(); we already loaded the grid above using "page" function
+                            return false;
+                        });
+
+                        $("#@Html.FieldIdFor(model => model.SearchEmail)").keydown(function (event) {
+                            if (event.keyCode == 13) {
+                                $("#search-submissions").click();
+                                return false;
+                            }
+                        });
+
+                        function additionalData() {
+                            var data = {
+                                SearchEmail: $('#@Html.FieldIdFor(model => model.SearchEmail)').val(),
+                                SearchName: $('#@Html.FieldIdFor(model => model.SearchName)').val(),
+                                SearchSubmissionTypeEnumCode: $('#SearchSubmissionTypeEnumCode').val()
+                            };
+                            addAntiForgeryToken(data);
+                            return data;
+                        }
+                    });
+                </script>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+    $(function(){
+        $('#saveSubmissionSettings').click(function(){
+            var newMaxFSize = $('#maxFileSize').prop('value');
+            var newAllowedFTypes = $('#allowedFileTypes').prop('value');
+            var newEnqEmail = $('#enquiryEmail').prop('value');
+            var newJobAppEmail = $('#jobApplicationEmail').prop('value');
+            var newPartnerOffEmail = $('#partnerOfferEmail').prop('value');
+            var newVendorOffEmail = $('#vendorOfferEmail').prop('value');
+            var newOthEmail = $('#otherEmail').prop('value');
+
+            $.post("/Submission/SaveSettings", {newMaxFileSize: newMaxFSize, newAllowedFiletypes:newAllowedFTypes, newEnquiryEmail:newEnqEmail , newJobApplicationEmail: newJobAppEmail, newPartnerOfferEmail: newPartnerOffEmail, newVendorOfferEmail: newVendorOffEmail, newOtherEmail: newOthEmail}, function(data){
+                if (data == "success"){
+                    $('#settingsChangeStatus').html("Changes saved.").show().css("color","green").fadeOut('slow');
+                }
+                else{
+                    $('#settingsChangeStatus').html(data).show().css("color","red");
+                }
+            })
+        })
+    })
+    </script>
+}

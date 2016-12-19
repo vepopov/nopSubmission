@@ -1,0 +1,86 @@
+﻿@model Nop.Plugin.Zingasoft.Submission.Domain.SubmissionRecord
+@using System
+@using Nop.Web.Framework
+@using Nop.Web.Framework.Security.Captcha
+@using Nop.Web.Framework.UI
+@using Nop.Core.Infrastructure
+
+@{
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+
+    int maxFileSize = EngineContext.Current.Resolve<Nop.Plugin.Zingasoft.Submission.Domain.SubmissionAdminSettings>().SubmissionFileMaxSizeInMB;
+}
+<div class="page contact-page">
+    <div class="page-title">
+        <h1>@T("Plugins.Zingasoft.Submission.NewEntry.Title")</h1>
+    </div>
+    <div class="page-body">
+        @if (Model.SuccessfullySaved)
+        {
+            <div class="result">
+                @Model.SaveResult
+            </div>
+        }
+        else
+        {
+            using (Html.BeginForm(null, null, FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+                var validationSummary = Html.ValidationSummary(true);
+                if (!MvcHtmlString.IsNullOrEmpty(validationSummary))
+                {
+                    <div class="message-error">@validationSummary</div>
+                }
+                @Html.HiddenFor(model => model.SubmissionRecordId)
+                @Html.HiddenFor(model => model.RecordType)
+                @Html.HiddenFor(model => model.DisplayCaptcha)
+                <div class="fieldset">
+                    <div class="form-fields">
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.Email)
+                            @Html.TextBoxFor(model => model.Email)
+                            @Html.RequiredHint()
+                            @Html.ValidationMessageFor(model => model.Email)
+                        </div>
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.FullName)
+                            @Html.TextBoxFor(model => model.FullName)
+                            @Html.RequiredHint()
+                            @Html.ValidationMessageFor(model => model.FullName)
+                        </div>
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.Subject)
+                            @Html.TextBoxFor(model => model.Subject)
+                            @Html.RequiredHint()
+                            @Html.ValidationMessageFor(model => model.Subject)
+                        </div>
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.Phone)
+                            @Html.TextBoxFor(model => model.Phone)
+                            @Html.ValidationMessageFor(model => model.Phone)
+                        </div>
+                        <div class="inputs">
+                            @Html.LabelFor(model => model.Enquiry)
+                            @Html.TextAreaFor(model => model.Enquiry, new { placeholder = T("Plugins.Zingasoft.Submission.EnquiryPlaceholder")})
+                            @Html.RequiredHint()
+                            @Html.ValidationMessageFor(model => model.Enquiry)
+                        </div>
+                        <div class="inputs">
+                            <label>@T("Plugins.Zingasoft.Submission.NewEntry.AttachFileHint",maxFileSize)</label>
+                            <input type="file" id="addattachment" name="addattachment" />
+                        </div>
+                        @if (Model.DisplayCaptcha)
+                        {
+                            <div class="captcha-box">
+                                @Html.Raw(Html.GenerateCaptcha())
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="buttons">
+                    <input type="submit" name="newentry" class="button-1 contact-us-button" value="@T("Plugins.Zingasoft.Submission.NewEntry.Send")" />
+                </div>
+            }
+        }
+    </div>
+</div>

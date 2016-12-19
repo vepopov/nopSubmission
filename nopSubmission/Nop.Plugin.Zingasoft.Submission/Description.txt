@@ -1,0 +1,8 @@
+﻿Group: Zingasoft
+FriendlyName: Submission Form
+SystemName: Zingasoft.Submission
+Version: 1.0
+SupportedVersions: 3.70
+Author: Zingasoft
+DisplayOrder: 1
+FileName: Nop.Plugin.Zingasoft.Submission.dll
